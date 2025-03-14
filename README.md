@@ -199,6 +199,25 @@ git clone git@git.succpinndemo.com:your-username/your-repo.git
 - ✅ Use database credentials from step 2.
 - ✅ Create an admin user and start managing repositories!
 
+![image](https://github.com/user-attachments/assets/ff69af23-2510-4cfb-ad5d-88dcdb6538f8)
+
+![image](https://github.com/user-attachments/assets/e5a4b59b-c3b1-4d16-a033-7c324e0b04cd)
+
+#### Click **Register** at the top right to register:
+
+![image](https://github.com/user-attachments/assets/96a1ed2d-51e0-47ef-9ab5-e00470bc969d) 
+
+![image](https://github.com/user-attachments/assets/7673ebc1-12e9-48f0-bfa4-aa52677f8c5d)
+
+#### Create your first repo:
+
+![image](https://github.com/user-attachments/assets/243d2bd0-d6c3-4729-b1de-d43bd0920055)
+
+
+
+
+
+
 ## 🔥 Key Takeaways
 
 - ✅ Gitea provides **lightweight, self-hosted Git repository management.**
