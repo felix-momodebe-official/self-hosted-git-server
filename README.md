@@ -37,9 +37,13 @@ Before starting, make sure you have:
 - ✅ Security groups allowing ports 22 (SSH), 80 (HTTP), 443 (HTTPS)
 - ✅ mariadb server
 
-# 🔥 Step-by-Step Deployment Process
+## 🔥 Step-by-Step Deployment Process
 
-### 1️⃣ Update & Install Dependencies
+### 1️⃣ Spin up an Ubunt EC2 machine. SSH into the machine, Update & Install Dependencies
+
+![image](https://github.com/user-attachments/assets/52369536-b32e-4d32-9ed3-681e2adb97ef)
+
+#### Update & Install Dependencies:
 
 ```
 sudo apt update && sudo apt upgrade -y
