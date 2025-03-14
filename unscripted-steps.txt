@@ -1,0 +1,160 @@
+Objective
+
+Deploy a self-hosted Git server using Gitea on an Ubuntu machine, allowing private Git repository hosting, user management, and CI/CD automation.
+Step-by-Step Implementation
+
+Steps:
+
+1️. Install Ubuntu & Update System
+
+sudo apt update && sudo apt upgrade -y
+
+2. Install Required Packages
+
+sudo apt install git mariadb-server nginx certbot python3-certbot-nginx -y
+
+3️. Secure MariaDB
+
+sudo mysql_secure_installation
+
+- Set a strong root password
+- Remove anonymous users
+- Disable remote root login
+
+4️. Create Gitea Database & User
+
+sudo mysql -u root -p
+
+Run:
+
+CREATE DATABASE gitea CHARACTER SET 'utf8mb4' COLLATE 'utf8mb4_unicode_ci';
+CREATE USER 'gitea'@'localhost' IDENTIFIED BY 'Devopsshack@123';
+GRANT ALL PRIVILEGES ON gitea.* TO 'gitea'@'localhost';
+FLUSH PRIVILEGES;
+EXIT;
+
+5️. Install & Configure Gitea
+
+**Download & Install Gitea
+
+sudo mkdir -p /var/lib/gitea
+sudo useradd --system --home /var/lib/gitea --shell /bin/bash gitea
+sudo wget -O /usr/local/bin/gitea https://dl.gitea.com/gitea/1.23.4/gitea-1.23.4-linux-amd64
+sudo chmod +x /usr/local/bin/gitea
+
+**Create Configuration & Data Directories
+
+sudo mkdir -p /etc/gitea /var/lib/gitea/{custom,data,log}
+sudo chown -R gitea:gitea /var/lib/gitea /etc/gitea
+sudo chmod -R 750 /var/lib/gitea /etc/gitea
+sudo touch /etc/gitea/app.ini
+sudo chmod 640 /etc/gitea/app.ini
+
+6️. Configure app.ini
+
+**Open the Gitea configuration file:
+
+sudo vi /etc/gitea/app.ini
+
+**Update Repository Paths
+
+[repository]
+ROOT = /var/lib/gitea/data/gitea-repositories
+
+**Update Server Configuration
+
+[server]
+APP_DATA_PATH = /var/lib/gitea/data
+DOMAIN = git.succpinndemo.com
+SSH_DOMAIN = git.succpinndemo.com
+HTTP_PORT = 3000
+ROOT_URL = https://git.succpinndemo.com/
+LFS_CONTENT_PATH = /var/lib/gitea/data/fs
+
+**Update Log Configuration
+
+[log]
+ROOT_PATH = /var/lib/gitea/log
+
+**Fix permissions:
+
+sudo chown -R gitea:gitea /etc/gitea
+sudo chmod 640 /etc/gitea/app.ini
+
+7️. Configure Systemd Service for Gitea
+
+sudo vi /etc/systemd/system/gitea.service
+
+Add:
+
+[Unit]
+Description=Gitea Self-Hosted Git Server
+After=network.target mariadb.service
+
+[Service]
+User=gitea
+Group=gitea
+ExecStart=/usr/local/bin/gitea web --config /etc/gitea/app.ini
+Restart=always
+WorkingDirectory=/var/lib/gitea
+Environment=USER=gitea HOME=/var/lib/gitea
+
+[Install]
+WantedBy=multi-user.target
+
+
+**Reload Systemd & Start Gitea
+
+sudo systemctl daemon-reload
+sudo systemctl enable --now gitea
+sudo systemctl status gitea
+
+8️. Set Up Reverse Proxy with Nginx
+
+
+sudo vi /etc/nginx/sites-available/gitea
+
+
+Add:
+
+server {
+    listen 80;
+    server_name git.succpinndemo.com;
+    location / {
+        proxy_pass http://localhost:3000;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $host;
+    }
+}
+
+
+Enable & Restart Nginx:
+
+sudo ln -s /etc/nginx/sites-available/gitea /etc/nginx/sites-enabled/
+sudo systemctl restart nginx
+
+9️. Secure Gitea with SSL (Let's Encrypt)
+
+sudo certbot --nginx -d git.succpinndemo.com
+Set up auto-renewal:
+sudo crontab -e
+
+Add:
+
+0 3 * * * certbot renew --quiet
+
+
+10. Enable SSH Access for Git Repositories
+
+sudo usermod -aG gitea $(whoami)
+sudo systemctl restart gitea
+git clone git@www.succpinndemo.com:your-username/your-repo.git
+
+
+11. Access Gitea Web Interface
+
+•Open https://git.succpinndemo.com
+•Complete initial setup
+•Use Gitea database credentials
+•Create an admin user
